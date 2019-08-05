@@ -20,6 +20,9 @@ use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ *
  * @IgnoreAnnotation("depends")
  */
 class ConfigSqlitetTest extends KernelTestCase

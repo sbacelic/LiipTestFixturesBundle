@@ -15,13 +15,13 @@ namespace Liip\Acme\Tests\Test;
 
 use Doctrine\Common\Annotations\Annotation\IgnoreAnnotation;
 use Doctrine\ORM\EntityManager;
+use Liip\Acme\Tests\App\Entity\User;
 use Liip\Acme\Tests\AppConfig\AppConfigKernel;
 use Liip\TestFixturesBundle\Annotations\DisableDatabaseCache;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Zalas\Injector\PHPUnit\Symfony\TestCase\SymfonyTestContainer;
 use Zalas\Injector\PHPUnit\TestCase\ServiceContainerTestCase;
 
 /**
@@ -40,7 +40,7 @@ use Zalas\Injector\PHPUnit\TestCase\ServiceContainerTestCase;
  */
 class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
 {
-    use SymfonyTestContainer;
+    use FixturesTrait;
 
     /**
      * @var EntityManager
@@ -53,17 +53,6 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
      * @inject
      */
     private $containerTest;
-
-    /**
-     * @var DatabaseToolCollection
-     * @inject liip_test_fixtures.services.database_tool_collection
-     */
-    private $databaseToolCollection;
-
-    /**
-     * @var AbstractDatabaseTool
-     */
-    private $databaseTool;
 
     protected static function getKernelClass(): string
     {
@@ -97,7 +86,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
             $fixtures
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $fixtures['id1'];
 
         // The custom provider has not been used successfully.
@@ -111,7 +100,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
             '@AcmeBundle/DataFixtures/ORM/user_with_custom_provider.yml',
         ]);
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $fixtures['id1'];
 
         // The custom provider "foo" has been loaded and used successfully.
@@ -133,7 +122,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         $this->databaseTool->loadFixtures($fixtures);
 
         // Load data from database
-        /** @var \Liip\Acme\Tests\App\Entity\User $user1 */
+        /** @var User $user1 */
         $user1 = $this->entityManager->getRepository('LiipAcme:User')->findOneBy(['id' => 1]);
 
         // Store random data, in order to check it after reloading fixtures.
@@ -144,7 +133,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         // Reload the fixtures.
         $this->databaseTool->loadFixtures($fixtures);
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user1 */
+        /** @var User $user1 */
         $user1 = $this->entityManager->getRepository('LiipAcme:User')->findOneBy(['id' => 1]);
 
         //The salt are not the same because cache were not used
@@ -166,7 +155,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         $this->databaseTool->loadFixtures($fixtures);
 
         // Load data from database
-        /** @var \Liip\Acme\Tests\App\Entity\User $user1 */
+        /** @var User $user1 */
         $user1 = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy(['id' => 1]);
 

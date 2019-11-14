@@ -16,11 +16,12 @@ namespace Liip\Acme\Tests\Test;
 use Doctrine\Common\Annotations\Annotation\IgnoreAnnotation;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
+use InvalidArgumentException;
+use Liip\Acme\Tests\App\Entity\User;
 use Liip\Acme\Tests\AppConfigSqlite\AppConfigSqliteKernel;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zalas\Injector\PHPUnit\Symfony\TestCase\SymfonyTestContainer;
 use Zalas\Injector\PHPUnit\TestCase\ServiceContainerTestCase;
 
 /**
@@ -31,24 +32,13 @@ use Zalas\Injector\PHPUnit\TestCase\ServiceContainerTestCase;
  */
 class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCase
 {
-    use SymfonyTestContainer;
+    use FixturesTrait;
 
     /**
      * @var EntityManager
      * @inject doctrine
      */
     private $entityManager;
-
-    /**
-     * @var DatabaseToolCollection
-     * @inject liip_test_fixtures.services.database_tool_collection
-     */
-    private $databaseToolCollection;
-
-    /**
-     * @var AbstractDatabaseTool
-     */
-    private $databaseTool;
 
     public function setUp(): void
     {
@@ -102,7 +92,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             $repository
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user1 */
+        /** @var User $user1 */
         $user1 = $repository->getReference('user');
 
         $this->assertSame(1, $user1->getId());
@@ -120,7 +110,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             count($users)
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy([
                 'id' => 1,
@@ -148,7 +138,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
         );
 
         // Load data from database
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy([
                 'id' => 1,
@@ -163,7 +153,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             $user->getEnabled()
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy([
                 'id' => 3,
@@ -252,7 +242,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             count($users)
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy([
                 'id' => 1,
@@ -277,7 +267,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
      */
     public function testLoadNonexistentFixturesFiles(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->databaseTool->loadAliceFixture([
             '@AcmeBundle/DataFixtures/ORM/nonexistent.yml',
@@ -304,7 +294,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
         );
 
         $id = 1;
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         foreach ($fixtures as $user) {
             $this->assertSame($id++, $user->getId());
         }
@@ -329,7 +319,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             $fixtures
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user1 */
+        /** @var User $user1 */
         $user1 = $fixtures['id1'];
 
         $this->assertIsString($user1->getUsername());
@@ -343,7 +333,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
             count($users)
         );
 
-        /** @var \Liip\Acme\Tests\App\Entity\User $user */
+        /** @var User $user */
         $user = $this->entityManager->getRepository('LiipAcme:User')
             ->findOneBy([
                 'id' => 1,
@@ -387,7 +377,7 @@ class ConfigSqlitetTest extends KernelTestCase implements ServiceContainerTestCa
     {
         $path = ['/nonexistent.yml'];
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->databaseTool->loadAliceFixture($path);
     }

@@ -18,7 +18,6 @@ use Doctrine\ORM\EntityManager;
 use Liip\Acme\Tests\App\Entity\User;
 use Liip\Acme\Tests\AppConfig\AppConfigKernel;
 use Liip\TestFixturesBundle\Annotations\DisableDatabaseCache;
-use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -59,22 +58,13 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         return AppConfigKernel::class;
     }
 
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->assertInstanceOf(DatabaseToolCollection::class, $this->databaseToolCollection);
-
-        $this->databaseTool = $this->databaseToolCollection->get();
-    }
-
     /**
      * Load Data Fixtures with custom loader defined in configuration.
      */
     public function testLoadFixturesFilesWithCustomProvider(): void
     {
         // Load default Data Fixtures.
-        $fixtures = $this->databaseTool->loadAliceFixture([
+        $fixtures = $this->loadFixtureFiles([
             '@AcmeBundle/DataFixtures/ORM/user.yml',
         ]);
 
@@ -96,7 +86,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         );
 
         // Load Data Fixtures with custom loader defined in configuration.
-        $fixtures = $this->databaseTool->loadAliceFixture([
+        $fixtures = $this->loadFixtureFiles([
             '@AcmeBundle/DataFixtures/ORM/user_with_custom_provider.yml',
         ]);
 
@@ -119,7 +109,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
             'Liip\Acme\Tests\App\DataFixtures\ORM\LoadDependentUserData',
         ];
 
-        $this->databaseTool->loadFixtures($fixtures);
+        $this->loadFixtures($fixtures);
 
         // Load data from database
         /** @var User $user1 */
@@ -131,7 +121,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         sleep(2);
 
         // Reload the fixtures.
-        $this->databaseTool->loadFixtures($fixtures);
+        $this->loadFixtures($fixtures);
 
         /** @var User $user1 */
         $user1 = $this->entityManager->getRepository('LiipAcme:User')->findOneBy(['id' => 1]);
@@ -152,7 +142,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
             'Liip\Acme\Tests\App\DataFixtures\ORM\LoadDependentUserData',
         ];
 
-        $this->databaseTool->loadFixtures($fixtures);
+        $this->loadFixtures($fixtures);
 
         // Load data from database
         /** @var User $user1 */
@@ -179,7 +169,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         sleep(2);
 
         // Reload the fixtures.
-        $this->databaseTool->loadFixtures($fixtures);
+        $this->loadFixtures($fixtures);
 
         // The mtime of the file has not changed.
         $this->assertSame(
@@ -205,7 +195,7 @@ class ConfigTest extends KernelTestCase implements ServiceContainerTestCase
         // Update the filemtime of the fixture file used as a dependency.
         touch($dependentFixtureFilePath);
 
-        $this->databaseTool->loadFixtures($fixtures);
+        $this->loadFixtures($fixtures);
 
         // The mtime of the fixture file has been updated.
         $this->assertGreaterThan(
